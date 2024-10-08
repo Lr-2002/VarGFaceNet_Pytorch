@@ -62,7 +62,7 @@ def get_train_val_loaders(dataset, fold, num_folds=5, batch_size=32):
     val_loader = DataLoader(dataset, batch_size=batch_size, sampler=torch.utils.data.SubsetRandomSampler(val_indices), num_workers=4)
 
     return train_loader, val_loader
-def get_loaders(data_dir='/home/lr-2002/code/face-reg/data/lfw/'):
+def get_loaders(data_dir='/home/lr-2002/code/face-reg/data/lfw/', num_fold=10):
     # Store loaders for each fold
 
 
@@ -78,7 +78,7 @@ def get_loaders(data_dir='/home/lr-2002/code/face-reg/data/lfw/'):
     ])
     dataset = LFWDataset(data_dir, transform=transform)
     loaders = []
-    for k in range(10):
+    for k in range(num_fold):
         train_loader, val_loader = get_train_val_loaders(dataset, k, batch_size=192)
         loaders.append((train_loader, val_loader))
     return loaders

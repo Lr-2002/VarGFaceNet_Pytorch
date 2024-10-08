@@ -14,7 +14,7 @@ from util import load_np, save_csv
 X_train, X_test, y_train, y_test = load_np()
 
 # 创建随机森林模型
-model = RandomForestClassifier(n_estimators=10, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
 
 # 训练模型
 model.fit(X_train, y_train)

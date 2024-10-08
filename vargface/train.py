@@ -12,7 +12,7 @@ import torch.nn.functional as F
 # Check for GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def training(train_loader, val_loader, num_classes=5755):
+def training(train_loader, val_loader, num_classes=5755, fold=0):
     # Load Data
     # Initialize model
     model = VarGFaceNet(num_classes=num_classes)  # Update num_classes for your specific dataset
@@ -54,23 +54,23 @@ def training(train_loader, val_loader, num_classes=5755):
 
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss / len(train_loader):.4f}")
 
-        # Validation accuracy calculation
-        model.eval()  # Set the model to evaluation mode
-        all_labels = []
-        all_predictions = []
+    # Validation accuracy calculation
+    model.eval()  # Set the model to evaluation mode
+    all_labels = []
+    all_predictions = []
 
-        with torch.no_grad():
-            for images, labels in val_loader:
-                images, labels = images.to(device), labels.to(device)
-                outputs = model(images)
-                probabilities = F.softmax(outputs, dim=1)
-                predicted = torch.argmax(probabilities, 1)
-                all_labels.extend(labels.cpu().numpy())  # 收集真实标签
-                all_predictions.extend(predicted.cpu().numpy())  # 收集预测标签
+    with torch.no_grad():
+        for images, labels in val_loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            probabilities = F.softmax(outputs, dim=1)
+            predicted = torch.argmax(probabilities, 1)
+            all_labels.extend(labels.cpu().numpy())  # 收集真实标签
+            all_predictions.extend(predicted.cpu().numpy())  # 收集预测标签
 
         # 计算精确度、召回率和 F1 分数
     report = classification_report(all_labels, all_predictions, output_dict=True)
-    save_csv(report, 'vargface.csv')
+    save_csv(report, f'vargface_{fold}.csv')
         # correct = 0
         # total = 0
         # with torch.no_grad():
@@ -86,9 +86,9 @@ def training(train_loader, val_loader, num_classes=5755):
         # print(f"Validation Accuracy: {accuracy:.2f}%")
 
 if __name__ =='__main__':
-    train_loader, val_loader = get_pt_dataloader()
-    training(train_loader, val_loader, num_classes=1800)
-    # loaders = get_loaders()
-    # for i, (train_loader, val_loader) in enumerate(loaders):
-    #     print(i)
-    #     training(train_loader, val_loader)
+    # train_loader, val_loader = get_pt_dataloader()
+    # training(train_loader, val_loader, num_classes=1800)
+    loaders = get_loaders()
+    for i, (train_loader, val_loader) in enumerate(loaders):
+        print(i)
+        training(train_loader, val_loader, fold=i)
