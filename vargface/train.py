@@ -23,7 +23,7 @@ def training(train_loader, val_loader, num_classes=5755, fold=0):
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
 
     # Training
-    num_epochs = 10
+    num_epochs = 20
     model.train()
     for epoch in range(num_epochs):
         running_loss = 0.0
@@ -88,7 +88,7 @@ def training(train_loader, val_loader, num_classes=5755, fold=0):
 if __name__ =='__main__':
     # train_loader, val_loader = get_pt_dataloader()
     # training(train_loader, val_loader, num_classes=1800)
-    loaders = get_loaders()
+    loaders = get_loaders(batch_size=256)
     for i, (train_loader, val_loader) in enumerate(loaders):
         print(i)
         training(train_loader, val_loader, fold=i)
