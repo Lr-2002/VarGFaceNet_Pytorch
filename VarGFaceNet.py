@@ -1,6 +1,6 @@
 from torch.nn import Linear, Conv2d, BatchNorm1d, BatchNorm2d, PReLU, ReLU, Sigmoid, Dropout2d, Dropout, AvgPool2d, \
     MaxPool2d, AdaptiveAvgPool2d, Sequential, Module, Parameter
-
+from torch import nn
 # batchnorm params
 bn_mom = 0.9
 bn_eps = 2e-5
@@ -263,9 +263,9 @@ class Embedding_Block(Module):
 
 
 class VarGFaceNet(Module):
-    def __init__(self):
+    def __init__(self,num_classes):
         super(VarGFaceNet, self).__init__()
-
+        self.num_classes = num_classes
         multiplier = 1.25
         emb_size = 512
         factor = 2
@@ -289,7 +289,13 @@ class VarGFaceNet(Module):
         self.body = Sequential(*body)
         self.emb = Embedding_Block(input_channels=int(filter_list[3] * multiplier), last_channels=last_channels,
                                    emb_size=emb_size, bias=False)  # 源代码的input_channels缺少*multiplier，无法运行
-        # initialization
+        self.fc = Linear(emb_size, num_classes)
+        # for m in self.modules():
+        #     if isinstance(m, nn.Conv2d):
+        #         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+        #         if m.bias is not None:  # Check if bias exists
+        #             nn.init.zeros_(m.bias)
+        # # initialization
         for m in self.modules():  # 借用MobileNetV3的初始化方法
             if isinstance(m, Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out')
@@ -300,11 +306,13 @@ class VarGFaceNet(Module):
                 nn.init.zeros_(m.bias)
             elif isinstance(m, Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
-                nn.init.zeros_(m.bias)
+                if hasattr(m, 'bias') and m.bias is not None:
+                    nn.init.zeros_(m.bias)
 
     
     def forward(self, x):
         x = self.head(x)
         x = self.body(x)
         x = self.emb(x)
+        x = self.fc(x)
         return x
