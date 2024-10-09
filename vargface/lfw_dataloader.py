@@ -37,6 +37,12 @@ class LFWDataset(Dataset):
                         self.image_paths.append(img_path)
                         self.labels.append(idx)
 
+        import random
+
+        combined = list(zip(self.image_paths, self.labels))
+        random.shuffle(combined)
+        self.image_paths[:], self.labels[:] = zip(*combined)
+        print('all data shuffled')
     def __len__(self):
         return len(self.image_paths)
 

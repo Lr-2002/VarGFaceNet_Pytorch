@@ -12,7 +12,7 @@ import torch.nn.functional as F
 # Check for GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def training(train_loader, val_loader, num_classes=5755, fold=0):
+def training(train_loader, val_loader, num_classes=5755, fold=0, num_epochs=20):
     # Load Data
     # Initialize model
     model = VarGFaceNet(num_classes=num_classes)  # Update num_classes for your specific dataset
@@ -23,7 +23,6 @@ def training(train_loader, val_loader, num_classes=5755, fold=0):
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
 
     # Training
-    num_epochs = 20
     model.train()
     for epoch in range(num_epochs):
         running_loss = 0.0
@@ -88,7 +87,7 @@ def training(train_loader, val_loader, num_classes=5755, fold=0):
 if __name__ =='__main__':
     # train_loader, val_loader = get_pt_dataloader()
     # training(train_loader, val_loader, num_classes=1800)
-    loaders = get_loaders(batch_size=256)
+    loaders = get_loaders(batch_size=256, num_fold=10)
     for i, (train_loader, val_loader) in enumerate(loaders):
         print(i)
-        training(train_loader, val_loader, fold=i)
+        training(train_loader, val_loader, fold=i, num_epochs=20)
